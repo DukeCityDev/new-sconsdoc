@@ -6,6 +6,10 @@
  * Time: 3:45 PM
  */
 
+
+// NOTE: NETID CAN ONLY BE FROM 3-20 CHARACTERS
+
+
 namespace classes;
 
 
