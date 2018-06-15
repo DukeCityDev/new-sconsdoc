@@ -10,8 +10,10 @@
 // NOTE: NETID CAN ONLY BE FROM 3-20 CHARACTERS
 
 
+
 namespace classes;
 
+use util\Util;
 
 class Scon
 {
@@ -159,5 +161,40 @@ class Scon
     public function getPhoneNumber() : \string
     {
         return $this->phoneNumber;
+    }
+
+    public function setStartDate( ?\DateTime $date): void
+    {
+        if(is_null($date)){
+            $date = new \DateTime();
+        }
+        if(Util::verifyDate($date)){
+            throw new \InvalidArgumentException("Date Time is not Valid");
+        }
+        $this->startDate = $date;
+    }
+
+    public function getStartDate(): void
+    {
+        return $this->startDate;
+    }
+
+    public function setAdminStatus(?bool $adminStatus): void
+    {
+        if(is_null($adminStatus)){
+            $adminStatus = false;
+        }else{
+          if(!is_bool($adminStatus)){
+              throw new \TypeError("Admin Status is not a Boolean");
+          }
+        }
+
+
+        $this->adminStatus = $adminStatus;
+    }
+
+    public function getAdminStatus() :bool
+    {
+        return $this->adminStatus;
     }
 }
