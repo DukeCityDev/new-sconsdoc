@@ -30,7 +30,25 @@ class Scon
 
  public function __construct($sconId, $firstName, $lastName, $middleInitial,$netId, $email,$phoneNumber, $startDate, $adminStatus)
  {
-
+     try{
+         $this->setSconId($sconId);
+         $this->setFirstName($firstName);
+         $this->setLastName($lastName);
+         $this->setMiddleInitial($middleInitial);
+         $this->setNetId($netId);
+         $this->setEmail($email);
+         $this->setPhoneNumber($phoneNumber);
+         $this->setStartDate($startDate);
+         $this->setAdminStatus($adminStatus);
+     } catch(\InvalidArgumentException $invalidArgument) {
+         throw(new \InvalidArgumentException($invalidArgument->getMessage(), 0, $invalidArgument));
+     } catch(\RangeException $range) {
+         throw(new \RangeException($range->getMessage(), 0, $range));
+     } catch(\TypeError $typeError) {
+         throw(new \TypeError($typeError->getMessage(), 0, $typeError));
+     } catch(\Exception $exception) {
+         throw(new \Exception($exception->getMessage(), 0, $exception));
+     }
  }
 
  public function setSconId(?int $sconId):void{
