@@ -174,7 +174,7 @@ class Scon
         $this->startDate = $date;
     }
 
-    public function getStartDate(): void
+    public function getStartDate(): \DateTime
     {
         return $this->startDate;
     }
@@ -196,5 +196,58 @@ class Scon
     public function getAdminStatus() :bool
     {
         return $this->adminStatus;
+    }
+
+    public function insert(\PDO $pdo) :void
+    {
+        if($this->sconId !== null){
+            throw (new \PDOException("Not a new SCON"));
+        }
+
+        $query = "INSERT INTO scon (sconId, firstName, lastName, middleInitial,netId, email,phoneNumber, startDate, adminStatus) VALUES(:sconId, :firstName, :lastName, :middleInitial, :netId, :email, :phoneNumber, :startDate, :adminStatus)";
+        $statement = $pdo->prepare($query);
+        $formattedDate = $this->startDate->format("Y-m-d");
+        $parameters = ["sconId" => $this->getSconId(), "firstName"=> $this->firstName, "lastName"=>$this->lastName, "middleInitial"=>$this->middleInitial, "netId"=>$this->netId, "email"=> $this->email, "phoneNumber"=> $this->phoneNumber, "startDate"=>$this->startDate, "adminStatus"=> $this->adminStatus];
+
+        $statement->execute($parameters);
+
+        $this->sconId = intval($pdo->lastInsertId());
+    }
+
+    public function delete(\PDO $pdo){
+        $query = "DELETE FROM scon WHERE sconId = :sconId";
+        $statement = $pdo->prepare($query);
+        $parameters = ["sconId"=>$this->sconId];
+        $statement->execute($parameters);
+    }
+
+    public function update (\PDO $pdo){
+        $query = "UPDATE scon SET sconId = :sconId, firstName = :firstName, lastName = :lastName, middleInitial = :middleInitial, netId = :netId, email = :email, phoneNumber = :phoneNumber, startDate = :startDate, adminStatus = :adminStatus";
+        $statement = $pdo->prepare($query);
+        $parameters = ["sconId" => $this->getSconId(), "firstName"=> $this->firstName, "lastName"=>$this->lastName, "middleInitial"=>$this->middleInitial, "netId"=>$this->netId, "email"=> $this->email, "phoneNumber"=> $this->phoneNumber, "startDate"=>$this->startDate, "adminStatus"=> $this->adminStatus];
+        $statement->execute($parameters);
+    }
+
+    public static function getSconByNetId(\PDO $pdo, string $netId){
+
+        $netId = trim($netId);
+        $netId = filter_var($netId, FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES);;
+        $query = "SELECT sconId,  firstName, lastName, middleInitial,netId, email,phoneNumber, startDate, adminStatus FROM scon WHERE netId = :netId";
+        $statement = $pdo->prepare($query);
+        $parameters = ["netId"=> $netId];
+        $statement->execute($parameters);
+
+        try{
+            $scon = null;
+            $statement->setFetchMode(\PDO::FETCH_ASSOC);
+            $row = $statement->fetch();
+            if($row !== false){
+                $scon = new Scon($row["sconId"],$row["firstName"],$row["lastName"],$row["middleInitial"],$row["netId"],$row["email"],$row["phoneNumber"],$row["startDate"],$row["adminStatus"]);
+            }
+        }catch(\Exception $e){
+            throw(new \PDOException(new \PDOException($E)))
+        }
+
+        return ($scon);
     }
 }
