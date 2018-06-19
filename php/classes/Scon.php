@@ -11,7 +11,7 @@
 
 
 
-namespace classes;
+namespace Scheduler\Classes;
 
 use util\Util;
 
@@ -176,7 +176,7 @@ class Scon
         $this->phoneNumber = $phoneNumber;
     }
 
-    public function getPhoneNumber() : \string
+    public function getPhoneNumber() : string
     {
         return $this->phoneNumber;
     }
