@@ -245,7 +245,7 @@ class Scon
                 $scon = new Scon($row["sconId"],$row["firstName"],$row["lastName"],$row["middleInitial"],$row["netId"],$row["email"],$row["phoneNumber"],$row["startDate"],$row["adminStatus"]);
             }
         }catch(\Exception $e){
-            throw(new \PDOException(new \PDOException($E)))
+            throw(new \PDOException(new \PDOException($e->getMessage(),0,$e)));
         }
 
         return ($scon);
