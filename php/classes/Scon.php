@@ -15,7 +15,7 @@ namespace Unm\Scheduler;
 require_once(dirname(__DIR__) . "/autoload.php");
 require_once(dirname(__DIR__) . "/util/Util.php");
 
-class Scon
+class Scon implements \JsonSerializable
 {
     private $sconId;
     private $firstName;
@@ -330,4 +330,10 @@ class Scon
         return ($allScons);
 
     }
+
+    public function jsonSerialize() {
+        $fields = ["sconId"=>$this->getSconId(), "firstName"=> $this->getFirstName(), "lastName"=>$this->getLastName(),"middleInitial"=>$this->getMiddleInitial(),"email"=>$this->getEmail(),"netId"=>$this->getSconId(),"phoneNumber"=>$this->getPhoneNumber(), "startDate"=>$this->getStartDate(),"adminStatus"=>$this->getAdminStatus()];
+        return ($fields);
+    }
+
 }
