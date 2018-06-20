@@ -11,7 +11,7 @@
 
 
 
-namespace Scheduler\Classes;
+namespace Unm\Scheduler;
 
 use util\Util;
 
@@ -225,7 +225,7 @@ class Scon
         $query = "INSERT INTO scon (sconId, firstName, lastName, middleInitial,netId, email,phoneNumber, startDate, adminStatus) VALUES(:sconId, :firstName, :lastName, :middleInitial, :netId, :email, :phoneNumber, :startDate, :adminStatus)";
         $statement = $pdo->prepare($query);
         $formattedDate = $this->startDate->format("Y-m-d");
-        $parameters = ["sconId" => $this->getSconId(), "firstName"=> $this->firstName, "lastName"=>$this->lastName, "middleInitial"=>$this->middleInitial, "netId"=>$this->netId, "email"=> $this->email, "phoneNumber"=> $this->phoneNumber, "startDate"=>$this->startDate, "adminStatus"=> $this->adminStatus];
+        $parameters = ["sconId" => $this->getSconId(), "firstName"=> $this->firstName, "lastName"=>$this->lastName, "middleInitial"=>$this->middleInitial, "netId"=>$this->netId, "email"=> $this->email, "phoneNumber"=> $this->phoneNumber, "startDate"=>$formattedDate, "adminStatus"=> $this->adminStatus];
 
         $statement->execute($parameters);
 
@@ -253,6 +253,27 @@ class Scon
         $query = "SELECT sconId,  firstName, lastName, middleInitial,netId, email,phoneNumber, startDate, adminStatus FROM scon WHERE netId = :netId";
         $statement = $pdo->prepare($query);
         $parameters = ["netId"=> $netId];
+        $statement->execute($parameters);
+
+        try{
+            $scon = null;
+            $statement->setFetchMode(\PDO::FETCH_ASSOC);
+            $row = $statement->fetch();
+            if($row !== false){
+                $scon = new Scon($row["sconId"],$row["firstName"],$row["lastName"],$row["middleInitial"],$row["netId"],$row["email"],$row["phoneNumber"],$row["startDate"],$row["adminStatus"]);
+            }
+        }catch(\Exception $e){
+            throw(new \PDOException(new \PDOException($e->getMessage(),0,$e)));
+        }
+
+        return ($scon);
+    }
+
+    public static function getSconBySconId(\PDO $pdo, int $sconId){
+
+        $query = "SELECT sconId,  firstName, lastName, middleInitial,netId, email,phoneNumber, startDate, adminStatus FROM scon WHERE sconId = :sconId";
+        $statement = $pdo->prepare($query);
+        $parameters = ["sconId"=> $sconId];
         $statement->execute($parameters);
 
         try{

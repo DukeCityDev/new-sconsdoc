@@ -7,9 +7,9 @@
  */
 namespace Unm\Scheduler;
 use Unm\Scheduler\Tests\SchedulerTest;
+use Unm\Scheduler\Scon;
 require_once(dirname(__DIR__) . "/autoload.php");
 require_once("SchedulerTest.php");
-
 /**
  * UserTest Class
  *
@@ -20,71 +20,43 @@ require_once("SchedulerTest.php");
 
 
 class SconTest extends SchedulerTest{
-    /**
-     * user name for this user
-     * @var string $VALID_USERNAME
-     **/
-    protected $VALID_USERNAME = "testperson";
-    /**
-     * valid first name for this user
-     * @var string $VALID_USERNAME
-     **/
-    protected $VALID_FIRST_NAME = "john";
-    /**
-     * valid last name for this user
-     * @var string $VALID_USERNAME
-     **/
-    protected $VALID_LAST_NAME = "doe";
-    /**
-     * email for this user
-     * @var string $VALID_EMAIL
-     **/
-    protected $VALID_EMAIL = "testperson@gmail.com";
-    /**
-     * hash for this user
-     * just gibberish letters
-     * @var string $VALID_HASH
-     **/
+
+    protected $VALID_NET_ID = "testperson";
+    protected $VALID_FIRST_NAME = "Daniel";
+    protected $VALID_LAST_NAME = "Eaton";
+    protected $VALID_EMAIL = "deaton747@unm.edu";
+    protected $VALID_MIDDLE_INITIAL = "G";
+    protected $VALID_PHONE_NUMBER = "(505)-301-4619";
+    protected $VALID_START_DATE;
+    protected $VALID_ADMIN_STATUS = true;
     protected $VALID_HASH;
-    /**
-     * salt for this user
-     * just gibberish letters
-     * @var string $VALID_SALT
-     **/
     protected $VALID_SALT;
-    /**
-     * The user being tested
-     * @var User user
-     **/
+
     protected $user = null;
     public final function setUp() {
-        //run the default setUp() method
-        //create new zip code for testing
-        //creates password salt for testing
-        $this->VALID_SALT = bin2hex(random_bytes(32));
-        //creates password hash for testing
-        $this->VALID_HASH = hash_pbkdf2("sha512", "this is a password", $this->VALID_SALT, 262144);
+        $this->VALID_START_DATE = new \DateTime('now');
+        $this->VALID_START_DATE = $this->VALID_START_DATE->format("Y-m-d");
     }
     /**
-     * test inserting a valid User and verify that the actual mySQL data matches
+     * test inserting a valid Scon and verify that the actual mySQL data matches
      **/
-    public function testInsertValidUser() {
-        $this->VALID_SALT = bin2hex(random_bytes(32));
-        $this->VALID_HASH = hash_pbkdf2("sha512", "this is a password", $this->VALID_SALT, 262144);
+    public function testInsertValid() {
+
+
         // count the number of rows and save it for later
-        $numRows = $this->getConnection()->getRowCount("user");
+        $numRows = $this->getConnection()->getRowCount("scon");
         // create a new User and insert to into mySQL
-        $user = new User(null, $this->VALID_USERNAME, $this->VALID_FIRST_NAME, $this->VALID_LAST_NAME,$this->VALID_EMAIL, $this->VALID_HASH, $this->VALID_SALT);
-        $user->insert($this->getPDO());
+        $scon = new Scon(null,$this->VALID_FIRST_NAME, $this->VALID_LAST_NAME,$this->VALID_MIDDLE_INITIAL, $this->VALID_NET_ID, $this->VALID_EMAIL, $this->VALID_PHONE_NUMBER, $this->VALID_START_DATE, $this->VALID_ADMIN_STATUS);
+        $scon->insert($this->getPDO());
         // grab the data from mySQL and enforce the fields match our expectations
-        $pdoUser = User::getUserByUserId($this->getPDO(), $user->getUserId());
+        $pdoScon = Scon::getSconBySconId($this->getPDO(), $scon->getSconId());
         $this->assertEquals($numRows + 1, $this->getConnection()->getRowCount("user"));
-        $this->assertEquals($pdoUser->getUserUserName(), $this->VALID_USERNAME);
-        $this->assertEquals($pdoUser->getUserFirstName(), $this->VALID_FIRST_NAME);
-        $this->assertEquals($pdoUser->getUserLastName(), $this->VALID_LAST_NAME);
-        $this->assertEquals($pdoUser->getUserEmail(), $this->VALID_EMAIL);
-        $this->assertEquals($pdoUser->getUserHash(), $this->VALID_HASH);
-        $this->assertEquals($pdoUser->getUserSalt(), $this->VALID_SALT);
+        $this->assertEquals($pdoScon->getSconId(), $this->VALID_USERNAME);
+        $this->assertEquals($pdoScon->getUserFirstName(), $this->VALID_FIRST_NAME);
+        $this->assertEquals($pdoScon->getUserLastName(), $this->VALID_LAST_NAME);
+        $this->assertEquals($pdoScon->getUserEmail(), $this->VALID_EMAIL);
+        $this->assertEquals($pdoScon->getUserHash(), $this->VALID_HASH);
+        $this->assertEquals($pdoScon->getUserSalt(), $this->VALID_SALT);
     }
     /**
      * test inserting a User that already exists
