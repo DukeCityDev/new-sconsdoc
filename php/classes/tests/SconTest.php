@@ -6,8 +6,8 @@
  * Time: 2:43 PM
  */
 namespace Unm\Scheduler;
+use function PHPSTORM_META\type;
 use Unm\Scheduler\Tests\SchedulerTest;
-use Unm\Scheduler\Scon;
 require_once(dirname(__DIR__) . "/autoload.php");
 require_once("SchedulerTest.php");
 /**
@@ -34,14 +34,12 @@ class SconTest extends SchedulerTest{
 
     protected $user = null;
     public final function setUp() {
-        $this->VALID_START_DATE = new \DateTime('now');
-        $this->VALID_START_DATE = $this->VALID_START_DATE->format("Y-m-d");
     }
     /**
      * test inserting a valid Scon and verify that the actual mySQL data matches
      **/
     public function testInsertValid() {
-
+        $this->VALID_START_DATE = new \DateTime("2018-01-01T00:00:00.000000Z");
 
         // count the number of rows and save it for later
         $numRows = $this->getConnection()->getRowCount("scon");
@@ -50,126 +48,143 @@ class SconTest extends SchedulerTest{
         $scon->insert($this->getPDO());
         // grab the data from mySQL and enforce the fields match our expectations
         $pdoScon = Scon::getSconBySconId($this->getPDO(), $scon->getSconId());
-        $this->assertEquals($numRows + 1, $this->getConnection()->getRowCount("user"));
-        $this->assertEquals($pdoScon->getSconId(), $this->VALID_USERNAME);
-        $this->assertEquals($pdoScon->getUserFirstName(), $this->VALID_FIRST_NAME);
-        $this->assertEquals($pdoScon->getUserLastName(), $this->VALID_LAST_NAME);
-        $this->assertEquals($pdoScon->getUserEmail(), $this->VALID_EMAIL);
-        $this->assertEquals($pdoScon->getUserHash(), $this->VALID_HASH);
-        $this->assertEquals($pdoScon->getUserSalt(), $this->VALID_SALT);
+        $this->assertEquals($numRows + 1, $this->getConnection()->getRowCount("scon"));
+        $this->assertEquals($pdoScon->getFirstName(), $this->VALID_FIRST_NAME);
+        $this->assertEquals($pdoScon->getLastName(), $this->VALID_LAST_NAME);
+        $this->assertEquals($pdoScon->getMiddleInitial(), $this->VALID_MIDDLE_INITIAL);
+        $this->assertEquals($pdoScon->getNetId(), $this->VALID_NET_ID);
+        $this->assertEquals($pdoScon->getEmail(), $this->VALID_EMAIL);
+        $this->assertEquals($pdoScon->getPhoneNumber(), $this->VALID_PHONE_NUMBER);
+        $this->assertEquals($pdoScon->getStartDate(), $this->VALID_START_DATE);
+        $this->assertEquals($pdoScon->getAdminStatus(), $this->VALID_ADMIN_STATUS);
     }
     /**
      * test inserting a User that already exists
-     * @expectedException \PDOException
+     * @expectedException \Exception
      **/
     public function testInsertInvalidUser() {
+        $this->VALID_START_DATE = new \DateTime("2018-01-01T00:00:00.000000Z");
+
         // create a User with a non null user id and watch it fail
-        $user = new User(UNMTest::INVALID_KEY, $this->VALID_USERNAME, $this->VALID_FIRST_NAME, $this->VALID_LAST_NAME, $this->VALID_EMAIL, $this->VALID_HASH, $this->VALID_SALT);
-        $user->insert($this->getPDO());
+        $scon = new Scon(SchedulerTest::INVALID_KEY,$this->VALID_FIRST_NAME, $this->VALID_LAST_NAME,$this->VALID_MIDDLE_INITIAL, $this->VALID_NET_ID, $this->VALID_EMAIL, $this->VALID_PHONE_NUMBER, $this->VALID_START_DATE, $this->VALID_ADMIN_STATUS);
+        $scon->insert($this->getPDO());
     }
     /**
      * test inserting a User, editing it, and then updating it
      **/
     public function testUpdateValidUser() {
+        $this->VALID_START_DATE = new \DateTime("2018-01-01T00:00:00.000000Z");
+
         // count the number of rows and save it for later
-        $numRows = $this->getConnection()->getRowCount("user");
+        $numRows = $this->getConnection()->getRowCount("scon");
         // create a new User and insert to into mySQL
-        $user = new User(null, $this->VALID_USERNAME, $this->VALID_FIRST_NAME, $this->VALID_LAST_NAME,$this->VALID_EMAIL, $this->VALID_HASH, $this->VALID_SALT);
-        $user->insert($this->getPDO());
+        $scon = new Scon(null,$this->VALID_FIRST_NAME, $this->VALID_LAST_NAME,$this->VALID_MIDDLE_INITIAL, $this->VALID_NET_ID, $this->VALID_EMAIL, $this->VALID_PHONE_NUMBER, $this->VALID_START_DATE, $this->VALID_ADMIN_STATUS);
+        $scon->insert($this->getPDO());
         // edit the User and update it in mySQL
-        $user->setUserUserName($this->VALID_USERNAME);
-        $user->update($this->getPDO());
+        $scon->setNetId("newDeaton");
+        $scon->update($this->getPDO());
         // grab the data from mySQL and enforce the fields match our expectations
-        $pdoUser = User::getUserByUserId($this->getPDO(), $user->getUserId());
-        $this->assertEquals($numRows + 1, $this->getConnection()->getRowCount("user"));
-        $this->assertEquals($pdoUser->getUserUserName(), $this->VALID_USERNAME);
-        $this->assertEquals($pdoUser->getUserFirstName(),$this->VALID_FIRST_NAME);
-        $this->assertEquals($pdoUser->getUserLastName(),$this->VALID_LAST_NAME);
-        $this->assertEquals($pdoUser->getUserEmail(), $this->VALID_EMAIL);
-        $this->assertEquals($pdoUser->getUserHash(), $this->VALID_HASH);
-        $this->assertEquals($pdoUser->getUserSalt(), $this->VALID_SALT);
+        $pdoScon = Scon::getSconBySconId($this->getPDO(), $scon->getSconId());
+        $this->assertEquals($numRows + 1, $this->getConnection()->getRowCount("scon"));
+        $this->assertEquals($pdoScon->getFirstName(), $this->VALID_FIRST_NAME);
+        $this->assertEquals($pdoScon->getLastName(), $this->VALID_LAST_NAME);
+        $this->assertEquals($pdoScon->getMiddleInitial(), $this->VALID_MIDDLE_INITIAL);
+        $this->assertEquals($pdoScon->getNetId(), "newDeaton");
+        $this->assertEquals($pdoScon->getEmail(), $this->VALID_EMAIL);
+        $this->assertEquals($pdoScon->getPhoneNumber(), $this->VALID_PHONE_NUMBER);
+        $this->assertEquals($pdoScon->getStartDate(), $this->VALID_START_DATE);
+        $this->assertEquals($pdoScon->getAdminStatus(), $this->VALID_ADMIN_STATUS);
     }
     /**
      * test updating a User that does not exist
      * @expectedException \PDOException
      **/
     public function testUpdateInvalidUser() {
+        $this->VALID_START_DATE = new \DateTime("2018-01-01T00:00:00.000000Z");
         // create a User, try to update it without actually inserting it and watch it fail
-        $user = new User(null, $this->VALID_USERNAME, $this->VALID_FIRST_NAME,$this->VALID_LAST_NAME,$this->VALID_EMAIL, $this->VALID_HASH, $this->VALID_SALT);
-        $user->update($this->getPDO());
+        $scon = new Scon(null,$this->VALID_FIRST_NAME, $this->VALID_LAST_NAME,$this->VALID_MIDDLE_INITIAL, $this->VALID_NET_ID, $this->VALID_EMAIL, $this->VALID_PHONE_NUMBER, $this->VALID_START_DATE, $this->VALID_ADMIN_STATUS);
+        $scon->update($this->getPDO());
     }
     /**
      * test creating a User and then deleting it
      **/
     public function testDeleteValidUser() {
+        $this->VALID_START_DATE = new \DateTime("2018-01-01T00:00:00.000000Z");
+
         // count the number of rows and save it for later
-        $numRows = $this->getConnection()->getRowCount("user");
+        $numRows = $this->getConnection()->getRowCount("scon");
         // create a new User and insert to into mySQL
-        $user = new User(null, $this->VALID_USERNAME, $this->VALID_FIRST_NAME,$this->VALID_LAST_NAME,$this->VALID_EMAIL, $this->VALID_HASH, $this->VALID_SALT);
-        $user->insert($this->getPDO());
+        $scon = new Scon(null,$this->VALID_FIRST_NAME, $this->VALID_LAST_NAME,$this->VALID_MIDDLE_INITIAL, $this->VALID_NET_ID, $this->VALID_EMAIL, $this->VALID_PHONE_NUMBER, $this->VALID_START_DATE, $this->VALID_ADMIN_STATUS);
+        $scon->insert($this->getPDO());
         // delete the User from mySQL
-        $this->assertEquals($numRows + 1, $this->getConnection()->getRowCount("user"));
-        $user->delete($this->getPDO());
+        $this->assertEquals($numRows + 1, $this->getConnection()->getRowCount("scon"));
+        $scon->delete($this->getPDO());
         // grab the data from mySQL and enforce the User does not exist
-        $pdoUser = User::getUserByUserId($this->getPDO(), $user->getUserId());
-        $this->assertNull($pdoUser);
-        $this->assertEquals($numRows, $this->getConnection()->getRowCount("user"));
+        $pdoScon = Scon::getSconBySconId($this->getPDO(), $scon->getSconId());
+        $this->assertNull($pdoScon);
+        $this->assertEquals($numRows, $this->getConnection()->getRowCount("scon"));
     }
     /**
      * test deleting a User that does not exist
      * @expectedException \Exception
      **/
     public function testDeleteInvalidUser() {
+        $this->VALID_START_DATE = new \DateTime("2018-01-01T00:00:00.000000Z");
+
         // create a User and try to delete it without actually inserting it
-        $user = new User(null, $this->VALID_USERNAME, $this->VALID_FIRST_NAME,$this->VALID_LAST_NAME,$this->VALID_EMAIL, $this->VALID_HASH, $this->VALID_SALT);
-        $user->delete($this->getPDO());
+        $scon = new Scon(null,$this->VALID_FIRST_NAME, $this->VALID_LAST_NAME,$this->VALID_MIDDLE_INITIAL, $this->VALID_NET_ID, $this->VALID_EMAIL, $this->VALID_PHONE_NUMBER, $this->VALID_START_DATE, $this->VALID_ADMIN_STATUS);
+        $scon->delete($this->getPDO());
     }
     /**
      * test grabbing a User by user name
      **/
-    public function testGetValidUserByUserUsername() {
+    public function testGetValidSconByNetId() {
+        $this->VALID_START_DATE = new \DateTime("2018-01-01T00:00:00.000000Z");
+
         // count the number of rows and save it for later
-        $numRows = $this->getConnection()->getRowCount("user");
+        $numRows = $this->getConnection()->getRowCount("scon");
         // create a new User and insert to into mySQL
-        $user = new User(null, $this->VALID_USERNAME, $this->VALID_FIRST_NAME,$this->VALID_LAST_NAME,$this->VALID_EMAIL, $this->VALID_HASH, $this->VALID_SALT);
-        $user->insert($this->getPDO());
+        $scon = new Scon(null,$this->VALID_FIRST_NAME, $this->VALID_LAST_NAME,$this->VALID_MIDDLE_INITIAL, $this->VALID_NET_ID, $this->VALID_EMAIL, $this->VALID_PHONE_NUMBER, $this->VALID_START_DATE, $this->VALID_ADMIN_STATUS);
+        $scon->insert($this->getPDO());
         // grab the data from mySQL and enforce the fields match our expectations
-        $results = User::getUserByUserUserName($this->getPDO(), $user->getUserUserName());
-        $this->assertEquals($numRows + 1, $this->getConnection()->getRowCount("user"));
-        //$this->assertCount(1, $results);
-        //$this->assertContainsOnlyInstancesOf("Unm\\Deaton\\User", $results);
+        $results = Scon::getSconByNetId($this->getPDO(), $scon->getNetId());
+        $this->assertEquals($numRows + 1, $this->getConnection()->getRowCount("scon"));
         // grab the result from the array and validate it
-        $pdoUser = $results;
-        $this->assertEquals($numRows + 1, $this->getConnection()->getRowCount("user"));
-        $this->assertEquals($pdoUser->getUserUserName(), $this->VALID_USERNAME);
-        $this->assertEquals($pdoUser->getUserFirstName(),$this->VALID_FIRST_NAME);
-        $this->assertEquals($pdoUser->getUserLastName(),$this->VALID_LAST_NAME);
-        $this->assertEquals($pdoUser->getUserEmail(), $this->VALID_EMAIL);
-        $this->assertEquals($pdoUser->getUserHash(), $this->VALID_HASH);
-        $this->assertEquals($pdoUser->getUserSalt(), $this->VALID_SALT);
+        $pdoScon = $results;
+        $this->assertEquals($numRows + 1, $this->getConnection()->getRowCount("scon"));
+        $this->assertEquals($pdoScon->getFirstName(), $this->VALID_FIRST_NAME);
+        $this->assertEquals($pdoScon->getLastName(), $this->VALID_LAST_NAME);
+        $this->assertEquals($pdoScon->getMiddleInitial(), $this->VALID_MIDDLE_INITIAL);
+        $this->assertEquals($pdoScon->getNetId(), $this->VALID_NET_ID);
+        $this->assertEquals($pdoScon->getEmail(), $this->VALID_EMAIL);
+        $this->assertEquals($pdoScon->getPhoneNumber(), $this->VALID_PHONE_NUMBER);
+        $this->assertEquals($pdoScon->getStartDate(), $this->VALID_START_DATE);
+        $this->assertEquals($pdoScon->getAdminStatus(), $this->VALID_ADMIN_STATUS);
     }
-    /**
-     * test grabbing all Users
-     **/
+
     public function testGetAllValidUsers() {
+        $this->VALID_START_DATE = new \DateTime("2018-01-01T00:00:00.000000Z");
+
         // count the number of rows and save it for later
-        $numRows = $this->getConnection()->getRowCount("user");
+        $numRows = $this->getConnection()->getRowCount("scon");
         // create a new User and insert to into mySQL
-        $user = new User(null, $this->VALID_USERNAME,$this->VALID_FIRST_NAME,$this->VALID_LAST_NAME, $this->VALID_EMAIL, $this->VALID_HASH, $this->VALID_SALT);
-        $user->insert($this->getPDO());
+        $scon = new Scon(null,$this->VALID_FIRST_NAME, $this->VALID_LAST_NAME,$this->VALID_MIDDLE_INITIAL, $this->VALID_NET_ID, $this->VALID_EMAIL, $this->VALID_PHONE_NUMBER, $this->VALID_START_DATE, $this->VALID_ADMIN_STATUS);
+        $scon->insert($this->getPDO());
         // grab the data from mySQL and enforce the fields match our expectations
-        $results = User::getAllUsers($this->getPDO());
-        $this->assertEquals($numRows + 1, $this->getConnection()->getRowCount("user"));
+        $results = Scon::getAllScons($this->getPDO());
+        $this->assertEquals($numRows + 1, $this->getConnection()->getRowCount("scon"));
         $this->assertCount(1, $results);
-        $this->assertContainsOnlyInstancesOf("Unm\\Deaton\\User", $results);
+        $this->assertContainsOnlyInstancesOf("Unm\\Scheduler\\Scon", $results);
         // grab the result from the array and validate it
-        $pdoUser = $results[0];
-        $this->assertEquals($numRows + 1, $this->getConnection()->getRowCount("user"));
-        $this->assertEquals($pdoUser->getUserUserName(), $this->VALID_USERNAME);
-        $this->assertEquals($pdoUser->getUserFirstName(),$this->VALID_FIRST_NAME);
-        $this->assertEquals($pdoUser->getUserLastName(),$this->VALID_LAST_NAME);
-        $this->assertEquals($pdoUser->getUserEmail(), $this->VALID_EMAIL);
-        $this->assertEquals($pdoUser->getUserHash(), $this->VALID_HASH);
-        $this->assertEquals($pdoUser->getUserSalt(), $this->VALID_SALT);
-    }
+        $pdoScon = $results[0];
+        $this->assertEquals($numRows + 1, $this->getConnection()->getRowCount("scon"));
+        $this->assertEquals($pdoScon->getFirstName(), $this->VALID_FIRST_NAME);
+        $this->assertEquals($pdoScon->getLastName(), $this->VALID_LAST_NAME);
+        $this->assertEquals($pdoScon->getMiddleInitial(), $this->VALID_MIDDLE_INITIAL);
+        $this->assertEquals($pdoScon->getNetId(), $this->VALID_NET_ID);
+        $this->assertEquals($pdoScon->getEmail(), $this->VALID_EMAIL);
+        $this->assertEquals($pdoScon->getPhoneNumber(), $this->VALID_PHONE_NUMBER);
+        $this->assertEquals($pdoScon->getStartDate(), $this->VALID_START_DATE);
+        $this->assertEquals($pdoScon->getAdminStatus(), $this->VALID_ADMIN_STATUS);    }
+
 }

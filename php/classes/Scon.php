@@ -12,8 +12,8 @@
 
 
 namespace Unm\Scheduler;
-
-use util\Util;
+require_once(dirname(__DIR__) . "/autoload.php");
+require_once(dirname(__DIR__) . "/util/Util.php");
 
 class Scon
 {
@@ -58,8 +58,8 @@ class Scon
              throw new \InvalidArgumentException("Scon Id is Invalid: Not An Integer");
          } else if($sconId < 0){
              throw new \InvalidArgumentException("Scon ID is Invalid: Negative Integer");
-         } else if($sconId > 4294967294){
-             throw new \OutOfBoundsException("Scon ID is Invalid: Maximum INT(10) Size, asign more bytes to Scon Id");
+         } else if($sconId >= 4294967296){
+             throw new \OutOfBoundsException("Scon ID is Invalid: Maximum INT(10) Size, assign more bytes to Scon Id");
          }
      }
 
@@ -165,7 +165,7 @@ class Scon
 
     public function setPhoneNumber(?string $phoneNumber): void
     {
-        if(!is_null($phoneNumber)){
+        if(is_null($phoneNumber)){
             $phoneNumber = "";
         }
         if(!is_string($phoneNumber)){
@@ -184,9 +184,9 @@ class Scon
     public function setStartDate( ?\DateTime $date): void
     {
         if(is_null($date)){
-            $date = new \DateTime();
+            $date = new \DateTime("now");
         }
-        if(Util::verifyDate($date)){
+        if(!Util::verifyDate($date)){
             throw new \InvalidArgumentException("Date Time is not Valid");
         }
         $this->startDate = $date;
@@ -233,6 +233,9 @@ class Scon
     }
 
     public function delete(\PDO $pdo){
+        if(is_null($this->sconId)){
+            throw new \PDOException("Can't delete an un-inserted Scon");
+        }
         $query = "DELETE FROM scon WHERE sconId = :sconId";
         $statement = $pdo->prepare($query);
         $parameters = ["sconId"=>$this->sconId];
@@ -240,9 +243,15 @@ class Scon
     }
 
     public function update (\PDO $pdo){
+
+        if(is_null($this->sconId)){
+            throw new \PDOException("Can't update an un-inserted Scon");
+        }
+
         $query = "UPDATE scon SET sconId = :sconId, firstName = :firstName, lastName = :lastName, middleInitial = :middleInitial, netId = :netId, email = :email, phoneNumber = :phoneNumber, startDate = :startDate, adminStatus = :adminStatus";
         $statement = $pdo->prepare($query);
-        $parameters = ["sconId" => $this->getSconId(), "firstName"=> $this->firstName, "lastName"=>$this->lastName, "middleInitial"=>$this->middleInitial, "netId"=>$this->netId, "email"=> $this->email, "phoneNumber"=> $this->phoneNumber, "startDate"=>$this->startDate, "adminStatus"=> $this->adminStatus];
+        $formattedDate = $this->startDate->format("Y-m-d");
+        $parameters = ["sconId" => $this->getSconId(), "firstName"=> $this->firstName, "lastName"=>$this->lastName, "middleInitial"=>$this->middleInitial, "netId"=>$this->netId, "email"=> $this->email, "phoneNumber"=> $this->phoneNumber, "startDate"=>$formattedDate, "adminStatus"=> $this->adminStatus];
         $statement->execute($parameters);
     }
 
@@ -260,7 +269,13 @@ class Scon
             $statement->setFetchMode(\PDO::FETCH_ASSOC);
             $row = $statement->fetch();
             if($row !== false){
-                $scon = new Scon($row["sconId"],$row["firstName"],$row["lastName"],$row["middleInitial"],$row["netId"],$row["email"],$row["phoneNumber"],$row["startDate"],$row["adminStatus"]);
+                if($row !== false){
+                    $newDate = new \DateTime($row["startDate"]);
+                    if(!$newDate){
+                        $newDate = new \DateTime();
+                    }
+                    $scon = new Scon($row["sconId"],$row["firstName"],$row["lastName"],$row["middleInitial"],$row["netId"],$row["email"],$row["phoneNumber"],$newDate,$row["adminStatus"]);
+                }
             }
         }catch(\Exception $e){
             throw(new \PDOException(new \PDOException($e->getMessage(),0,$e)));
@@ -281,12 +296,38 @@ class Scon
             $statement->setFetchMode(\PDO::FETCH_ASSOC);
             $row = $statement->fetch();
             if($row !== false){
-                $scon = new Scon($row["sconId"],$row["firstName"],$row["lastName"],$row["middleInitial"],$row["netId"],$row["email"],$row["phoneNumber"],$row["startDate"],$row["adminStatus"]);
+                $newDate = new \DateTime($row["startDate"]);
+                if(!$newDate){
+                    $newDate = new \DateTime();
+                }
+                $scon = new Scon($row["sconId"],$row["firstName"],$row["lastName"],$row["middleInitial"],$row["netId"],$row["email"],$row["phoneNumber"],$newDate,$row["adminStatus"]);
             }
         }catch(\Exception $e){
             throw(new \PDOException(new \PDOException($e->getMessage(),0,$e)));
         }
 
         return ($scon);
+    }
+
+    public static function getAllScons(\PDO $pdo){
+        $query = "SELECT sconId,  firstName, lastName, middleInitial,netId, email,phoneNumber, startDate, adminStatus FROM scon";
+        $statement = $pdo->prepare($query);
+        $statement->execute();
+
+        $allScons = new \SplFixedArray($statement->rowCount());
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        while(($row = $statement->fetch()) !== false) {
+            try {
+                $newDate = new \DateTime($row["startDate"]);
+                $scon = new Scon($row["sconId"],$row["firstName"],$row["lastName"],$row["middleInitial"],$row["netId"],$row["email"],$row["phoneNumber"],$newDate,$row["adminStatus"]);
+                $allScons[$allScons->key()] = $scon;
+                $allScons->next();
+            } catch(\Exception $exception) {
+                // if the row couldn't be converted, rethrow it
+                throw(new \PDOException($exception->getMessage(), 0, $exception));
+            }
+        }
+        return ($allScons);
+
     }
 }

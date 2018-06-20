@@ -55,8 +55,7 @@ abstract class SchedulerTest extends TestCase {
         $dataset = new QueryDataSet($this->getConnection());
         // add all the tables for the project here
         // THESE TABLES *MUST* BE LISTED IN THE SAME ORDER THEY WERE CREATED!!!!
-        $dataset->addTable("user");
-        $dataset->addTable("scheduleItem");
+        $dataset->addTable("scon");
         return($dataset);
     }
     /**

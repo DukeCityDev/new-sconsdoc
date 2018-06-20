@@ -7,12 +7,12 @@ CREATE TABLE scon(
   sconId INT UNSIGNED AUTO_INCREMENT,
   netId VARCHAR(21) NOT NULL,
   firstName VARCHAR(45) NOT NULL ,
-  middleInitital VARCHAR(1),
+  middleInitial VARCHAR(1),
   lastName VARCHAR(45) NOT NULL,
   phoneNumber VARCHAR(17),
   email VARCHAR(75),
   startDate DATETIME,
-  administrationStatus BOOLEAN,
+  adminStatus BOOLEAN,
 
   PRIMARY KEY(sconId)
 ) CHARACTER SET utf8 COLLATE utf8_unicode_ci;

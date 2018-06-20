@@ -6,12 +6,13 @@
  * Time: 3:38 PM
  */
 
-namespace util;
+namespace Unm\Scheduler;
 
 
 class Util
 {
     public static function verifyDate(\DateTime $date){
-        return (\DateTime::createFromFormat('m/d/Y',$date)!== false);
+        $dateString = $date->format('m/d/Y');
+        return (\DateTime::createFromFormat('m/d/Y',$dateString) !==false);
     }
 }
