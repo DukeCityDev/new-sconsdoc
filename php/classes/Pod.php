@@ -16,9 +16,22 @@ class Pod
     private $podId;
     private $podName;
 
-    public function __construct()
+    public function __construct($podId, $podName)
     {
-
+        try{
+            $this->setPodId($podId);
+            $this->setPodName($podName);
+        }catch(\InvalidArgumentException $e){
+            throw new \InvalidArgumentException($e->getMessage(), 0, $e);
+        } catch(\OutOfRangeException $e){
+            throw new \OutOfBoundsException($e->getMessage(),0,$e);
+        } catch(\TypeError $e){
+            throw new \TypeError($e->getMessage(),0,$e);
+        } catch(\OutOfRangeException $e){
+            throw new \OutOfRangeException($e->getMessage(),0,$e);
+        } catch(\Exception $e){
+            throw new \Exception($e->getMessage(),0,$e);
+        }
     }
 
     /**
@@ -55,18 +68,76 @@ class Pod
     }
 
 
-    public function setPodName(string $podName)
+    public function setPodName(string $podName):void
     {
         $podName = trim($podName);
 
         if(!is_string($podName)){
-            throw new \TypeError("First Name is Not a String");
+            throw new \TypeError("Expected Pod Name to Be a String");
         } else if(strlen($podName) > 45){
-            throw new \OutOfRangeException("First Name is Too Lomg");
+            throw new \OutOfRangeException("Pod Name is Too Lomg");
         } else if(strlen($podName) === 0 ){
-            throw new \OutOfRangeException("First Name is Too Short");
+            throw new \OutOfRangeException("Pod is Too Short");
         }
         $this->podName = $podName;
     }
+
+    public function insert(\PDO $pdo):void{
+        if($this->podId !== null){
+            throw (new \PDOException("Not a new SCON"));
+        }
+
+        $query = "INSERT INTO pod (podId, podName) VALUES(:podId, :podName)";
+        $statement = $pdo->prepare($query);
+        $parameters = ["podId" => $this->getPodId(), "podName"=> $this->getPodName()];
+
+        $statement->execute($parameters);
+
+        $this->podId = intval($pdo->lastInsertId());
+    }
+
+    public function update(\PDO $pdo):void{
+
+        if($this->podId == null){
+            throw (new \PDOException("Cannot update a Pod that does not exist"));
+        }
+
+        $query = "UPDATE pod SET podId = :podId, podName = :podName WHERE podId = :podId";
+        $statement = $pdo->prepare($query);
+        $parameters = ["podId"=>$this->getPodId(), "podName"=> $this->getPodName()];
+        $statement->execute($parameters);
+    }
+
+    public function delete(\PDO $pdo):void{
+        if($this->podId == null){
+            throw (new \PDOException("Cannot update a Pod that does not exist"));
+        }
+
+        $query = "DELETE FROM pod WHERE podId = :podId";
+        $statement = $pdo->prepare($query);
+        $parameters = ["podId"=>$this->podId];
+        $statement->execute($parameters);
+    }
+
+    public static function getPodByPodName(\PDO $pdo, $podName): ?Pod{
+        $podName =  trim($podName);
+        $query = "SELECT podId, podName FROM pod WHERE podName=:podName";
+        $statement = $pdo->prepare($query);
+        $parameters = ["podName"=> $podName];
+        $statement->execute($parameters);
+        $pod = null;
+        try{
+            $statement->setFetchMode(\PDO::FETCH_ASSOC);
+            $row = $statement->fetch();
+            if($row !== false){
+                $pod = new Pod($row["podId"],$row["podName"]);
+            }
+        }catch(\Exception $e){
+            throw(new \PDOException(new \PDOException($e->getMessage(),0,$e)));
+        }
+
+        return ($pod);
+    }
+
 
 }

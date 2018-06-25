@@ -248,7 +248,7 @@ class Scon implements \JsonSerializable
             throw new \PDOException("Can't update an un-inserted Scon");
         }
 
-        $query = "UPDATE scon SET sconId = :sconId, firstName = :firstName, lastName = :lastName, middleInitial = :middleInitial, netId = :netId, email = :email, phoneNumber = :phoneNumber, startDate = :startDate, adminStatus = :adminStatus";
+        $query = "UPDATE scon SET sconId = :sconId, firstName = :firstName, lastName = :lastName, middleInitial = :middleInitial, netId = :netId, email = :email, phoneNumber = :phoneNumber, startDate = :startDate, adminStatus = :adminStatus WHERE sconId = :sconId";
         $statement = $pdo->prepare($query);
         $formattedDate = $this->startDate->format("Y-m-d");
         $parameters = ["sconId" => $this->getSconId(), "firstName"=> $this->firstName, "lastName"=>$this->lastName, "middleInitial"=>$this->middleInitial, "netId"=>$this->netId, "email"=> $this->email, "phoneNumber"=> $this->phoneNumber, "startDate"=>$formattedDate, "adminStatus"=> $this->adminStatus];
