@@ -11,7 +11,7 @@ require_once(dirname(__DIR__) . "/autoload.php");
 //  podId INT UNSIGNED AUTO_INCREMENT,
 //podName VARCHAR(20) UNIQUE
 
-class Pod
+class Pod implements \JsonSerializable
 {
     private $podId;
     private $podName;
@@ -37,7 +37,7 @@ class Pod
     /**
      * @return int
      */
-    public function getPodId(): int
+    public function getPodId(): ?int
     {
         return $this->podId;
     }
@@ -84,7 +84,7 @@ class Pod
 
     public function insert(\PDO $pdo):void{
         if($this->podId !== null){
-            throw (new \PDOException("Not a new SCON"));
+            throw (new \PDOException("Not a new POD"));
         }
 
         $query = "INSERT INTO pod (podId, podName) VALUES(:podId, :podName)";
@@ -139,5 +139,28 @@ class Pod
         return ($pod);
     }
 
+    public static function getAllPods(\PDO $pdo){
+        $query = "SELECT podId,  podName FROM pod";
+        $statement = $pdo->prepare($query);
+        $statement->execute();
 
+        $allPods = new \SplFixedArray($statement->rowCount());
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        while(($row = $statement->fetch()) !== false) {
+            try {
+                $pod = new Pod($row["podId"],$row["podName"]);
+                $allPods[$allPods->key()] = $pod;
+                $allPods->next();
+            } catch(\Exception $exception) {
+                // if the row couldn't be converted, rethrow it
+                throw(new \PDOException($exception->getMessage(), 0, $exception));
+            }
+        }
+        return ($allPods);
+    }
+
+    public function jsonSerialize(){
+        $fields = ["podId"=>$this->podId(), "podName"=> $this->getPodName()];
+        return ($fields);
+    }
 }

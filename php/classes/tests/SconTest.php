@@ -162,7 +162,7 @@ class SconTest extends SchedulerTest{
         $this->assertEquals($pdoScon->getAdminStatus(), $this->VALID_ADMIN_STATUS);
     }
 
-    public function testGetAllValidUsers() {
+    public function testGetAllValidScons() {
         $this->VALID_START_DATE = new \DateTime("2018-01-01T00:00:00.000000Z");
 
         // count the number of rows and save it for later
