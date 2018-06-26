@@ -26,10 +26,9 @@ CREATE TABLE pod(
 CREATE TABLE shiftPlan(
   shiftPlanId INT UNSIGNED AUTO_INCREMENT,
   podId INT UNSIGNED NOT NULL,
-  dayOfWeek SMALLINT,
-  startTimeOfDay TIME,
-  endTimeOfDay TIME,
-  semester SMALLINT,
+  startDate DATETIME NOT NULL,
+  endDate DATETIME NOT NULL,
+  shiftPlanName VARCHAR(20),
   PRIMARY KEY(shiftPlanId),
   FOREIGN KEY(podId) REFERENCES pod(podId)
 )CHARACTER SET utf8 COLLATE utf8_unicode_ci;
