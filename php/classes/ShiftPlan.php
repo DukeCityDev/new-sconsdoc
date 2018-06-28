@@ -148,4 +148,119 @@ class ShiftPlan
         return $this->shiftPlanName;
     }
 
+    public function insert(\PDO $pdo){
+        if($this->shiftPlanId !== null){
+            throw (new \PDOException("Not a new ShiftPlan, can't be inserted"));
+        }
+
+        $query = "INSERT INTO shiftplan (shiftPlanId, podId, startDate, endDate, shiftPlanName) VALUES(:shiftPlanId, :podId, :startDate, :endDate, :shiftPlanName)";
+        $statement = $pdo->prepare($query);
+        $formattedStartDate = $this->startDate->format("Y-m-d");
+        $formattedEndDate = $this->endDate->format("Y-m-d");
+        $parameters = ["shiftPlanId" => $this->shiftPlanId, "podId"=> $this->podId, "startDate"=>$formattedStartDate, "endDate"=>$formattedEndDate, "shiftPlanName"=>$this->shiftPlanName];
+
+        $statement->execute($parameters);
+
+        $this->shiftPlanId = intval($pdo->lastInsertId());
+    }
+
+    public function update(\PDO $pdo){
+        if(is_null($this->sconId)){
+            throw new \PDOException("Can't update an un-inserted ShiftPlan");
+        }
+
+        $query = "UPDATE shiftplan SET shiftPlanId = :shiftPlanId, podId = :podId, startDate = :startDate, endDate = :endDate, shiftPlanName = :shiftPlanName WHERE shiftPlanId = :shiftPlanId";
+        $statement = $pdo->prepare($query);
+        $formattedStartDate = $this->startDate->format("Y-m-d");
+        $formattedEndDate = $this->endDate->format("Y-m-d");
+        $parameters = ["shiftPlanId" => $this->shiftPlanId, "podId"=> $this->podId, "startDate"=>$formattedStartDate, "endDate"=>$formattedEndDate, "shiftPlanName"=>$this->shiftPlanName];
+        $statement->execute($parameters);
+    }
+
+    public function delete(\PDO $pdo){
+        if(is_null($this->sconId)){
+            throw new \PDOException("Can't delete an un-inserted ShiftPlan");
+        }
+        $query = "DELETE FROM shiftplan WHERE shiftPlanId = :shiftPlanId";
+        $statement = $pdo->prepare($query);
+        $parameters = ["shiftPlanId"=>$this->shiftPlanId];
+        $statement->execute($parameters);
+    }
+
+    public static function getAllShiftPlans(\PDO $pdo){
+        $query = "SELECT shiftPlanId, podId, startDate, endDate, shiftPlanName FROM shiftplan";
+        $statement = $pdo->prepare($query);
+        $statement->execute();
+
+        $allShiftPlans = new \SplFixedArray($statement->rowCount());
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        while(($row = $statement->fetch()) !== false) {
+            try {
+                $newStartDate = new \DateTime($row["startDate"]);
+                $newEndDate = new \DateTime($row["endDate"]);
+                $shiftPlan = new ShiftPlan($row["shiftPlanId"],$row["podId"],$newStartDate,$newEndDate,$row["shiftPlanName"]);
+                $allShiftPlans[$allShiftPlans->key()] = $shiftPlan;
+                $allShiftPlans->next();
+            } catch(\Exception $exception) {
+                // if the row couldn't be converted, rethrow it
+                throw(new \PDOException($exception->getMessage(), 0, $exception));
+            }
+        }
+        return ($allShiftPlans);
+    }
+
+    public static function getShiftPlanByName(\PDO $pdo, string $shiftPlanName){
+        $shiftPlanName = trim($shiftPlanName);
+        $query = "SELECT shiftPlanId, podId, startDate, endDate, shiftPlanName FROM shiftplan WHERE shiftPlanName = :shiftPlanName";
+        $statement = $pdo->prepare($query);
+        $parameter = ["shiftPlanName"=>$shiftPlanName];
+        $statement->execute($parameter);
+
+        $allShiftPlans = new \SplFixedArray($statement->rowCount());
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        while(($row = $statement->fetch()) !== false) {
+            try {
+                $newStartDate = new \DateTime($row["startDate"]);
+                $newEndDate = new \DateTime($row["endDate"]);
+                $shiftPlan = new ShiftPlan($row["shiftPlanId"],$row["podId"],$newStartDate,$newEndDate,$row["shiftPlanName"]);
+                $allShiftPlans[$allShiftPlans->key()] = $shiftPlan;
+                $allShiftPlans->next();
+            } catch(\Exception $exception) {
+                // if the row couldn't be converted, rethrow it
+                throw(new \PDOException($exception->getMessage(), 0, $exception));
+            }
+        }
+        return ($allShiftPlans);
+    }
+
+    public static function getShiftPlanById(\PDO $pdo, int $shiftPlanId){
+        $query = "SELECT shiftPlanId, podId, startDate, endDate, shiftPlanName FROM shiftplan WHERE shiftPlanId = :shiftPlanId";
+        $statement = $pdo->prepare($query);
+        $parameter = ["shiftPlanId"=> $shiftPlanId];
+        $statement->execute($parameter);
+
+        try{
+            $shiftPlan = null;
+            $statement->setFetchMode(\PDO::FETCH_ASSOC);
+            $row = $statement->fetch();
+            if($row !== false){
+                $newStartDate = new \DateTime($row["startDate"]);
+                $newEndDate = new \DateTime($row["endDate"]);
+                if(!$newStartDate){
+                    $newStartDate = new \DateTime();
+                }
+                if(!$newEndDate){
+                    $newEndDate = new \DateTime();
+                }
+                $shiftPlan = new ShiftPlan($row["shiftPlanId"],$row["podId"],$newStartDate,$newEndDate,$row["shiftPlanName"]);
+            }
+        }catch(\Exception $e){
+            throw(new \PDOException(new \PDOException($e->getMessage(),0,$e)));
+        }
+
+        return ($shiftPlan);
+
+
+    }
+
 }
