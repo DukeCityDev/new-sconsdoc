@@ -39,8 +39,8 @@ CREATE TABLE shift(
   sconId INT UNSIGNED,
   podId INT UNSIGNED NOT NULL,
   shiftPlanId INT UNSIGNED,
-  startDateTime DATETIME NOT NULL,
-  endDateTime DATETIME NOT NULL,
+  startDate DATETIME NOT NULL,
+  endDate DATETIME NOT NULL,
   available BOOLEAN,
 
   INDEX(sconId),

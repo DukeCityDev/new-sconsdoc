@@ -18,13 +18,14 @@ class ShiftPlanTest extends SchedulerTest
     protected $VALID_POD;
 
     public final function setUp() {
-        $this->VALID_POD  = new Pod(null,"LOBO");
-        $this->VALID_POD->insert($this->getPDO());
     }
     /**
      * test inserting a valid Pod and verify that the actual mySQL data matches
      **/
     public function testInsertValid() {
+        $this->VALID_POD  = new Pod(null,"LOBO");
+        $this->VALID_POD->insert($this->getPDO());
+
         $startDate = new \DateTime('2018-01-01T00:00:00.000000Z');
         $endDate = new \DateTime('2019-01-01T00:00:00.000000Z');
         // count the number of rows and save it for later
@@ -34,82 +35,97 @@ class ShiftPlanTest extends SchedulerTest
         $shiftPlan = new ShiftPlan(null,$validPodId, $startDate, $endDate, "SPRING 2019");
         $shiftPlan->insert($this->getPDO());
         // grab the data from mySQL and enforce the fields match our expectations
-        $pdoShiftPlan = ShiftPlan::getShiftPlanByName("Spring 2019");
+        $pdoShiftPlan = ShiftPlan::getShiftPlanById($this->getPDO(), $shiftPlan->getShiftPlanId());
         $this->assertEquals($numRows + 1, $this->getConnection()->getRowCount("shiftPlan"));
         $this->assertEquals($pdoShiftPlan->getPodId(), $shiftPlan->getPodId());
-        $this->assertEquals($pdoShiftPlan->getStartDate().$shiftPlan->getStartDate());
-        $this->assertEquals(,);
+        $this->assertEquals($pdoShiftPlan->getStartDate(),$shiftPlan->getStartDate());
+        $this->assertEquals($pdoShiftPlan->getEndDate(),$shiftPlan->getEndDate());
+        $this->assertEquals($pdoShiftPlan->getShiftPlanName(),$shiftPlan->getShiftPlanName());
     }
 
     /**
      * @expectedException \Exception
      */
     public function testInsertInvalid(){
+        $this->VALID_POD  = new Pod(null,"LOBO");
+        $this->VALID_POD->insert($this->getPDO());
+
+        $startDate = new \DateTime('2018-01-01T00:00:00.000000Z');
+        $endDate = new \DateTime('2019-01-01T00:00:00.000000Z');
         // count the number of rows and save it for later
-        $numRows = $this->getConnection()->getRowCount("pod");
+        $numRows = $this->getConnection()->getRowCount("shiftPlan");
         // create a new Pod and insert to into mySQL
-        $pod = new Pod(67,$this->VALID_POD_NAME);
-        $pod->insert($this->getPDO());
-        // grab the data from mySQL and enforce the fields match our expectations
-        $pdoPod = Pod::getPodByPodName($this->getPDO(), $pod->getPodName());
-        $this->assertEquals($numRows + 1, $this->getConnection()->getRowCount("pod"));
-        $this->assertEquals($pdoPod->getPodId(), $pod->getPodId());
-        $this->assertEquals($pdoPod->getPodName(), $this->VALID_POD_NAME);
+        $shiftPlan = new ShiftPlan(68,$this->VALID_POD->getPodId(), $startDate, $endDate, "SPRING 2019");
+        $shiftPlan->insert($this->getPDO());
     }
 
     public function testUpdateValid(){
+        $startDate = new \DateTime('2018-01-01T00:00:00.000000Z');
+        $endDate = new \DateTime('2019-01-01T00:00:00.000000Z');
+        $this->VALID_POD  = new Pod(null,"LOBO");
+        $this->VALID_POD->insert($this->getPDO());
         // count the number of rows and save it for later
-        $numRows = $this->getConnection()->getRowCount("pod");
+        $numRows = $this->getConnection()->getRowCount("shiftPlan");
         // create a new Pod and insert to into mySQL
-        $pod = new Pod(null,$this->VALID_POD_NAME);
-        $pod->insert($this->getPDO());
-        $pod->setPodName("ATHLETICS");
-        $pod->update($this->getPDO());
+        $shiftPlan = new ShiftPlan(null,$this->VALID_POD->getPodId(), $startDate, $endDate,"TestName");
+        $shiftPlan->insert($this->getPDO());
+        $shiftPlan->setShiftPlanName("TestName2");
+        $shiftPlan->update($this->getPDO());
         // grab the data from mySQL and enforce the fields match our expectations
-        $pdoPod = Pod::getPodByPodName($this->getPDO(), $pod->getPodName());
-        $this->assertEquals($numRows + 1, $this->getConnection()->getRowCount("pod"));
-        $this->assertEquals($pdoPod->getPodId(), $pod->getPodId());
-        $this->assertEquals($pdoPod->getPodName(), "ATHLETICS");
+        $pdoShiftPlan = ShiftPlan::getShiftPlanById($this->getPDO(), $shiftPlan->getShiftPlanId());
+        $this->assertEquals($numRows + 1, $this->getConnection()->getRowCount("shiftPlan"));
+        $this->assertEquals($pdoShiftPlan->getPodId(), $shiftPlan->getPodId());
+        $this->assertEquals($pdoShiftPlan->getStartDate(),$shiftPlan->getStartDate());
+        $this->assertEquals($pdoShiftPlan->getEndDate(),$shiftPlan->getEndDate());
+        $this->assertEquals($pdoShiftPlan->getShiftPlanName(),$shiftPlan->getShiftPlanName());
     }
 
     /**
      * @expectedException \Exception
      */
     public function testUpdateInvalid(){
+        $startDate = new \DateTime('2018-01-01T00:00:00.000000Z');
+        $endDate = new \DateTime('2019-01-01T00:00:00.000000Z');
+        $this->VALID_POD  = new Pod(null,"LOBO");
+        $this->VALID_POD->insert($this->getPDO());
         // count the number of rows and save it for later
-        $numRows = $this->getConnection()->getRowCount("pod");
+        $numRows = $this->getConnection()->getRowCount("shiftPlan");
         // create a new Pod and insert to into mySQL
-        $pod = new Pod(null,$this->VALID_POD_NAME);
-        $pod->setPodName("ATHLETICS");
-        $pod->update($this->getPDO());
-        // grab the data from mySQL and enforce the fields match our expectations
-        $pdoPod = Pod::getPodByPodName($this->getPDO(), $pod->getPodName());
-        $this->assertEquals($numRows + 1, $this->getConnection()->getRowCount("pod"));
-        $this->assertEquals($pdoPod->getPodId(), $pod->getPodId());
-        $this->assertEquals($pdoPod->getPodName(), $this->VALID_POD_NAME);
+        $shiftPlan = new ShiftPlan(null,$this->VALID_POD->getPodId(), $startDate, $endDate,"TestName");
+        $shiftPlan->setShiftPlanName("TestName2");
+        $shiftPlan->update($this->getPDO());
     }
 
     public function testDeleteValid(){
+        $startDate = new \DateTime('2018-01-01T00:00:00.000000Z');
+        $endDate = new \DateTime('2019-01-01T00:00:00.000000Z');
+        $this->VALID_POD  = new Pod(null,"LOBO");
+        $this->VALID_POD->insert($this->getPDO());
         // count the number of rows and save it for later
-        $numRows = $this->getConnection()->getRowCount("pod");
+        $numRows = $this->getConnection()->getRowCount("shiftPlan");
         // create a new Pods and insert to into mySQL
-        $pod = new Pod(null,$this->VALID_POD_NAME);
-        $pod->insert($this->getPDO());
+        $shiftPlan = new ShiftPlan(null,$this->VALID_POD->getPodId(), $startDate, $endDate,"TestName");
+        $shiftPlan->insert($this->getPDO());
         // delete the Pod from mySQL
-        $this->assertEquals($numRows + 1, $this->getConnection()->getRowCount("pod"));
-        $pod->delete($this->getPDO());
+        $this->assertEquals($numRows + 1, $this->getConnection()->getRowCount("shiftPlan"));
+
+        $shiftPlan->delete($this->getPDO());
         // grab the data from mySQL and enforce the Pod does not exist
-        $pdoPod = Pod::getPodByPodName($this->getPDO(), $pod->getPodName());
-        $this->assertNull($pdoPod);
-        $this->assertEquals($numRows, $this->getConnection()->getRowCount("pod"));
+        $pdoShiftPlan = ShiftPlan::getShiftPlanById($this->getPDO(), $shiftPlan->getShiftPlanId());
+        $this->assertNull($pdoShiftPlan);
+        $this->assertEquals($numRows, $this->getConnection()->getRowCount("shiftPlan"));
     }
 
     /**
      * @expectedException \Exception
      */
     public function testDeleteInValid(){
-        $pod = new Pod(null, $this->VALID_POD_NAME);
-        $pod->delete($this->getPDO());
+        $startDate = new \DateTime('2018-01-01T00:00:00.000000Z');
+        $endDate = new \DateTime('2019-01-01T00:00:00.000000Z');
+        $this->VALID_POD  = new Pod(null,"LOBO");
+        $this->VALID_POD->insert($this->getPDO());
+        $shiftPlan = new ShiftPlan(null,$this->VALID_POD->getPodId(), $startDate, $endDate,"TestName");
+        $shiftPlan->delete($this->getPDO());
     }
 
 

@@ -57,6 +57,7 @@ abstract class SchedulerTest extends TestCase {
         // THESE TABLES *MUST* BE LISTED IN THE SAME ORDER THEY WERE CREATED!!!!
         $dataset->addTable("scon");
         $dataset->addTable("pod");
+        $dataset->addTable("shiftPlan");
         return($dataset);
     }
     /**

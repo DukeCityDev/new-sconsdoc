@@ -3,6 +3,7 @@
         <testsuite name="Scheduler 2.0">
             <file>SconTest.php</file>
             <file>PodTest.php</file>
+            <file>ShiftPlanTest.php</file>
         </testsuite>
     </testsuites>
     <filter>
