@@ -11,7 +11,7 @@ require_once(dirname(__DIR__) . "/autoload.php");
 require_once(dirname(__DIR__) . "/util/Util.php");
 
 
-class ShiftPlan
+class ShiftPlan implements \JsonSerializable
 {
 //      shiftPlanId INT UNSIGNED AUTO_INCREMENT,
 //    podId INT UNSIGNED NOT NULL,
@@ -259,8 +259,12 @@ class ShiftPlan
         }
 
         return ($shiftPlan);
+    }
 
 
+    public function jsonSerialize(){
+        $fields = ["shiftPlanId"=>$this->getShiftPlanId(), "podId"=> $this->getPodId(), "startDate"=>$this->getStartDate(),"endDate"=>$this->getEndDate(),"shiftPlanName"=>$this->getShiftPlanName()];
+        return ($fields);
     }
 
 }

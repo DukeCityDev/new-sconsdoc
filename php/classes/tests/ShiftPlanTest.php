@@ -128,6 +128,37 @@ class ShiftPlanTest extends SchedulerTest
         $shiftPlan->delete($this->getPDO());
     }
 
+    public function testGetShiftPlanByName(){
+        $numRows = $this->getConnection()->getRowCount("shiftPlan");
+        $startDate = new \DateTime('2018-01-01T00:00:00.000000Z');
+        $endDate = new \DateTime('2019-01-01T00:00:00.000000Z');
+        $this->VALID_POD  = new Pod(null,"LOBO");
+        $this->VALID_POD->insert($this->getPDO());
+        $shiftPlan = new ShiftPlan(null,$this->VALID_POD->getPodId(), $startDate, $endDate,"TestName");
+        $shiftPlan->insert($this->getPDO());
 
+        $pdoShiftPlan = ShiftPlan::getShiftPlanByName($this->getPDO(), $shiftPlan->getShiftPlanName());
+        $this->assertEquals($numRows + 1, $this->getConnection()->getRowCount("shiftPlan"));
+        $this->assertEquals($pdoShiftPlan[0]->getPodId(), $shiftPlan->getPodId());
+        $this->assertEquals($pdoShiftPlan[0]->getStartDate(),$shiftPlan->getStartDate());
+        $this->assertEquals($pdoShiftPlan[0]->getEndDate(),$shiftPlan->getEndDate());
+        $this->assertEquals($pdoShiftPlan[0]->getShiftPlanName(),$shiftPlan->getShiftPlanName());
+    }
 
+    public function testGetAllShiftPlans(){
+        $numRows = $this->getConnection()->getRowCount("shiftPlan");
+        $startDate = new \DateTime('2018-01-01T00:00:00.000000Z');
+        $endDate = new \DateTime('2019-01-01T00:00:00.000000Z');
+        $this->VALID_POD  = new Pod(null,"LOBO");
+        $this->VALID_POD->insert($this->getPDO());
+        $shiftPlan = new ShiftPlan(null,$this->VALID_POD->getPodId(), $startDate, $endDate,"TestName");
+        $shiftPlan->insert($this->getPDO());
+
+        $pdoShiftPlan = ShiftPlan::getAllShiftPlans($this->getPDO());
+        $this->assertEquals($numRows + 1, $this->getConnection()->getRowCount("shiftPlan"));
+        $this->assertEquals($pdoShiftPlan[0]->getPodId(), $shiftPlan->getPodId());
+        $this->assertEquals($pdoShiftPlan[0]->getStartDate(),$shiftPlan->getStartDate());
+        $this->assertEquals($pdoShiftPlan[0]->getEndDate(),$shiftPlan->getEndDate());
+        $this->assertEquals($pdoShiftPlan[0]->getShiftPlanName(),$shiftPlan->getShiftPlanName());
+    }
 }
