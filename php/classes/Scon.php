@@ -197,17 +197,11 @@ class Scon implements \JsonSerializable
         return $this->startDate;
     }
 
-    public function setAdminStatus(?bool $adminStatus): void
+    public function setAdminStatus($adminStatus): void
     {
-        if(is_null($adminStatus)){
-            $adminStatus = false;
-        }else{
-          if(!is_bool($adminStatus)){
-              throw new \TypeError("Admin Status is not a Boolean");
-          }
+        if(!$adminStatus){
+            $adminStatus = 0;
         }
-
-
         $this->adminStatus = $adminStatus;
     }
 

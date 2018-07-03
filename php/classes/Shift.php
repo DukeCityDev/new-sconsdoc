@@ -96,7 +96,7 @@ class Shift
     }
 
     public function getPodId():int{
-        return $this->getPodId();
+        return $this->podId;
     }
 
     public function setShiftPlanId(int $shiftPlanId):void{
@@ -152,9 +152,14 @@ class Shift
      */
     public function setAvailable(bool $available)
     {
-        if(is_null($this->sconNetId && !$available)){
+        if(is_null($this->sconNetId) && !$available){
             throw new \InvalidArgumentException("Shift cannot be unavailable if it has no assigned Scon");
         }
+
+        if(!$available){
+            $available = 0;
+        }
+
         $this->available = $available;
     }
 
@@ -185,7 +190,7 @@ class Shift
 
     public function update (\PDO $pdo){
 
-        if(is_null($this->sconId)){
+        if(is_null($this->shiftId)){
             throw new \PDOException("Can't update an un-inserted Shift");
         }
 
