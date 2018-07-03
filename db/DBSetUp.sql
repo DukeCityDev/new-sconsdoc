@@ -36,7 +36,7 @@ CREATE TABLE shiftPlan(
 
 CREATE TABLE shift(
   shiftId INT UNSIGNED AUTO_INCREMENT,
-  sconId INT UNSIGNED,
+  sconNetId VARCHAR(21) UNSIGNED,
   podId INT UNSIGNED NOT NULL,
   shiftPlanId INT UNSIGNED,
   startDate DATETIME NOT NULL,
@@ -48,7 +48,7 @@ CREATE TABLE shift(
   INDEX(shiftPlanId),
 
   PRIMARY KEY(shiftId),
-  FOREIGN KEY (sconId) REFERENCES scon(sconId),
+  FOREIGN KEY (sconNetId) REFERENCES scon(netId),
   FOREIGN KEY (podId) REFERENCES pod(podId),
   FOREIGN KEY (shiftPlanId) REFERENCES shiftPlan(shiftPlanId)
 
