@@ -171,5 +171,115 @@ class Shift
         return $this->available;
     }
 
+    public function insert(\PDO $pdo){
+        if($this->shiftId !== null){
+            throw (new \PDOException("Not a New Shift"));
+        }
+
+        $query = "INSERT INTO shift (shiftId, sconNetId, podId, shiftPlanId, startDate, endDate, available) VALUES(:shiftId, :sconNetId, :podId, :shiftPlanId, :startDate, :endDate, :available)";
+        $statement = $pdo->prepare($query);
+        $formattedStartDate = $this->startDate->format("Y-m-d");
+        $formattedEndDate = $this->endDate->format("Y-m-d");
+
+        $parameters = ["shiftId" => $this->shiftId, "sconNetId"=> $this->sconNetId, "podId"=>$this->podId, "shiftPlanId"=>$this->shiftPlanId, "startDate"=>$formattedStartDate, "endDate"=> $formattedEndDate, "available"=>$this->available];
+
+        $statement->execute($parameters);
+
+        $this->shiftId = intval($pdo->lastInsertId());
+    }
+
+    public function update (\PDO $pdo){
+
+        if(is_null($this->sconId)){
+            throw new \PDOException("Can't update an un-inserted Shift");
+        }
+
+        $query = "UPDATE shift SET shiftId = :shiftId, sconNetId = :sconNetId, podId = :podId, shiftPlanId= :shiftPlanId, startDate = :startDate, endDate = :endDate, available = :available WHERE shiftId = :shiftId";
+        $statement = $pdo->prepare($query);
+        $formattedStartDate = $this->startDate->format("Y-m-d");
+        $formattedEndDate = $this->endDate->format("Y-m-d");
+        $parameters = ["shiftId" => $this->shiftId, "sconNetId"=> $this->sconNetId, "podId"=>$this->podId, "shiftPlanId"=>$this->shiftPlanId, "startDate"=>$formattedStartDate, "endDate"=> $formattedEndDate, "available"=>$this->available];
+        $statement->execute($parameters);
+    }
+
+    public function delete(\PDO $pdo){
+        if(is_null($this->shiftId)){
+            throw new \PDOException("Can't delete an un-inserted Shift");
+        }
+        $query = "DELETE FROM shift WHERE shiftId = :shiftId";
+        $statement = $pdo->prepare($query);
+        $parameters = ["shiftId"=>$this->shiftId];
+        $statement->execute($parameters);
+    }
+
+    public static function getShiftByShiftPlanId(\PDO $pdo, int $shiftPlanId){
+        $query = "SELECT shiftId, sconNetId, podId, shiftPlanId, startDate, endDate, available FROM shift WHERE shiftPlanId = :shiftPlanId";
+        $statement = $pdo->prepare($query);
+        $parameter = ["shiftPlanId"=>$shiftPlanId];
+        $statement->execute($parameter);
+
+        $allShifts = new \SplFixedArray($statement->rowCount());
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        while(($row = $statement->fetch()) !== false) {
+            try {
+                $newStartDate = new \DateTime($row["startDate"]);
+                $newEndDate = new \DateTime($row["endDate"]);
+                $shift = new Shift($row["shiftId"], $row["sconNetId"],$row["podId"],$row["shiftPlanId"], $newStartDate, $newEndDate, $row["available"]);
+                $allShifts[$allShifts->key()] = $shift;
+                $allShifts->next();
+            } catch(\Exception $exception) {
+                // if the row couldn't be converted, rethrow it
+                throw(new \PDOException($exception->getMessage(), 0, $exception));
+            }
+        }
+        return ($allShifts);
+    }
+
+    public static function getShiftBySconNetId(\PDO $pdo, string $sconNetId){
+        $sconNetId = trim($sconNetId);
+        $query = "SELECT shiftId, sconNetId, podId, shiftPlanId, startDate, endDate, available FROM shift WHERE sconNetId = :sconNetId";
+        $statement = $pdo->prepare($query);
+        $parameter = ["sconNetId"=>$sconNetId];
+        $statement->execute($parameter);
+
+        $allShifts = new \SplFixedArray($statement->rowCount());
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        while(($row = $statement->fetch()) !== false) {
+            try {
+                $newStartDate = new \DateTime($row["startDate"]);
+                $newEndDate = new \DateTime($row["endDate"]);
+                $shift = new Shift($row["shiftId"], $row["sconNetId"],$row["podId"],$row["shiftPlanId"], $newStartDate, $newEndDate, $row["available"]);
+                $allShifts[$allShifts->key()] = $shift;
+                $allShifts->next();
+            } catch(\Exception $exception) {
+                // if the row couldn't be converted, rethrow it
+                throw(new \PDOException($exception->getMessage(), 0, $exception));
+            }
+        }
+        return ($allShifts);
+    }
+
+    public static function getShiftByShiftPlanIdAndPodId(\PDO $pdo, int $sconNetId,int $podId){
+        $query = "SELECT shiftId, sconNetId, podId, shiftPlanId, startDate, endDate, available FROM shift WHERE sconNetId = :sconNetId AND podId = :podId";
+        $statement = $pdo->prepare($query);
+        $parameter = ["sconNetId"=>$sconNetId, "podId"=>$podId];
+        $statement->execute($parameter);
+
+        $allShifts = new \SplFixedArray($statement->rowCount());
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        while(($row = $statement->fetch()) !== false) {
+            try {
+                $newStartDate = new \DateTime($row["startDate"]);
+                $newEndDate = new \DateTime($row["endDate"]);
+                $shift = new Shift($row["shiftId"], $row["sconNetId"],$row["podId"],$row["shiftPlanId"], $newStartDate, $newEndDate, $row["available"]);
+                $allShifts[$allShifts->key()] = $shift;
+                $allShifts->next();
+            } catch(\Exception $exception) {
+                // if the row couldn't be converted, rethrow it
+                throw(new \PDOException($exception->getMessage(), 0, $exception));
+            }
+        }
+        return ($allShifts);
+    }
 
 }
