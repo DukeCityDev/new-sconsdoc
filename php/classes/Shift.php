@@ -15,7 +15,7 @@ require_once(dirname(__DIR__) . "/util/Util.php");
  * Class Shift
  * @package Unm\Scheduler
  */
-class Shift
+class Shift implements \JsonSerializable
 {
     private $shiftId;
     private $sconNetId;
@@ -309,6 +309,11 @@ class Shift
             }
         }
         return ($allShifts);
+    }
+
+    public function jsonSerialize() {
+        $fields = ["shiftId"=>$this->shiftId, "sconNetId"=> $this->sconNetId, "podId"=>$this->podId,"shiftPlanId"=>$this->shiftPlanId,"startDate"=>$this->startDate(),"endDate"=>$this->endDate,"available"=>$this->available()];
+        return ($fields);
     }
 
 }
