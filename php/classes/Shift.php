@@ -241,7 +241,7 @@ class Shift
         return ($shift);
     }
 
-    public static function getShiftByShiftPlanId(\PDO $pdo, int $shiftPlanId){
+    public static function getShiftsByShiftPlanId(\PDO $pdo, int $shiftPlanId){
         $query = "SELECT shiftId, sconNetId, podId, shiftPlanId, startDate, endDate, available FROM shift WHERE shiftPlanId = :shiftPlanId";
         $statement = $pdo->prepare($query);
         $parameter = ["shiftPlanId"=>$shiftPlanId];
@@ -264,7 +264,7 @@ class Shift
         return ($allShifts);
     }
 
-    public static function getShiftBySconNetId(\PDO $pdo, string $sconNetId){
+    public static function getShiftsBySconNetId(\PDO $pdo, string $sconNetId){
         $sconNetId = trim($sconNetId);
         $query = "SELECT shiftId, sconNetId, podId, shiftPlanId, startDate, endDate, available FROM shift WHERE sconNetId = :sconNetId";
         $statement = $pdo->prepare($query);
@@ -288,10 +288,10 @@ class Shift
         return ($allShifts);
     }
 
-    public static function getShiftByShiftPlanIdAndPodId(\PDO $pdo, int $sconNetId,int $podId){
-        $query = "SELECT shiftId, sconNetId, podId, shiftPlanId, startDate, endDate, available FROM shift WHERE sconNetId = :sconNetId AND podId = :podId";
+    public static function getShiftsByShiftPlanIdAndPodId(\PDO $pdo, int $shiftPlanId,int $podId){
+        $query = "SELECT shiftId, sconNetId, podId, shiftPlanId, startDate, endDate, available FROM shift WHERE shiftPlanId = :shiftPlanId AND podId = :podId";
         $statement = $pdo->prepare($query);
-        $parameter = ["sconNetId"=>$sconNetId, "podId"=>$podId];
+        $parameter = ["shiftPlanId"=>$shiftPlanId, "podId"=>$podId];
         $statement->execute($parameter);
 
         $allShifts = new \SplFixedArray($statement->rowCount());

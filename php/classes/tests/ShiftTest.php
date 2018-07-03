@@ -118,4 +118,49 @@ class ShiftTest extends SchedulerTest
         $shift->delete($this->getPDO());
     }
 
+    public function testGetShiftsBySconNetId(){
+        $numRows = $this->getConnection()->getRowCount("shift");
+        $shift = new Shift(null,$this->VALID_SCON->getNetId(), $this->VALID_POD->getPodId(),$this->VALID_SHIFTPLAN->getShiftPlanId(),$this->VALID_START_DATE,$this->VALID_END_DATE, true);
+        $shift->insert($this->getPDO());
+
+        $pdoShift = Shift::getShiftsBySconNetId($this->getPDO(), $this->VALID_SCON->getNetId());
+        $this->assertEquals($numRows + 1, $this->getConnection()->getRowCount("shift"));
+        $this->assertEquals($pdoShift[0]->getSconNetId(), $shift->getSconNetId());
+        $this->assertEquals($pdoShift[0]->getShiftPlanId(), $shift->getShiftPlanId());
+        $this->assertEquals($pdoShift[0]->getPodId(), $shift->getPodId());
+        $this->assertEquals($pdoShift[0]->getStartDate(),$shift->getStartDate());
+        $this->assertEquals($pdoShift[0]->getEndDate(),$shift->getEndDate());
+        $this->assertEquals($pdoShift[0]->getAvailable(), $shift->getAvailable());
+    }
+
+    public function testGetShiftsByShiftPlanId(){
+        $numRows = $this->getConnection()->getRowCount("shift");
+        $shift = new Shift(null,$this->VALID_SCON->getNetId(), $this->VALID_POD->getPodId(),$this->VALID_SHIFTPLAN->getShiftPlanId(),$this->VALID_START_DATE,$this->VALID_END_DATE, true);
+        $shift->insert($this->getPDO());
+
+        $pdoShift = Shift::getShiftsByShiftPlanId($this->getPDO(), $this->VALID_SHIFTPLAN->getShiftPlanId());
+        $this->assertEquals($numRows + 1, $this->getConnection()->getRowCount("shift"));
+        $this->assertEquals($pdoShift[0]->getSconNetId(), $shift->getSconNetId());
+        $this->assertEquals($pdoShift[0]->getShiftPlanId(), $shift->getShiftPlanId());
+        $this->assertEquals($pdoShift[0]->getPodId(), $shift->getPodId());
+        $this->assertEquals($pdoShift[0]->getStartDate(),$shift->getStartDate());
+        $this->assertEquals($pdoShift[0]->getEndDate(),$shift->getEndDate());
+        $this->assertEquals($pdoShift[0]->getAvailable(), $shift->getAvailable());
+    }
+
+    public function testGetShiftByShiftPlanIdAndPodId(){
+        $numRows = $this->getConnection()->getRowCount("shift");
+        $shift = new Shift(null,$this->VALID_SCON->getNetId(), $this->VALID_POD->getPodId(),$this->VALID_SHIFTPLAN->getShiftPlanId(),$this->VALID_START_DATE,$this->VALID_END_DATE, true);
+        $shift->insert($this->getPDO());
+        $pdoShift = Shift::getShiftsByShiftPlanIdAndPodId($this->getPDO(), $this->VALID_SHIFTPLAN->getShiftPlanId(),$this->VALID_POD->getPodId());
+        $this->assertEquals($numRows + 1, $this->getConnection()->getRowCount("shift"));
+        $this->assertEquals($pdoShift[0]->getSconNetId(), $shift->getSconNetId());
+        $this->assertEquals($pdoShift[0]->getShiftPlanId(), $shift->getShiftPlanId());
+        $this->assertEquals($pdoShift[0]->getPodId(), $shift->getPodId());
+        $this->assertEquals($pdoShift[0]->getStartDate(),$shift->getStartDate());
+        $this->assertEquals($pdoShift[0]->getEndDate(),$shift->getEndDate());
+        $this->assertEquals($pdoShift[0]->getAvailable(), $shift->getAvailable());
+
+    }
+
 }
