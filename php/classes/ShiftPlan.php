@@ -12,14 +12,8 @@ require_once(dirname(__DIR__) . "/util/Util.php");
 
 
 class ShiftPlan implements \JsonSerializable
+
 {
-//      shiftPlanId INT UNSIGNED AUTO_INCREMENT,
-//    podId INT UNSIGNED NOT NULL,
-//    startDate DATETIME NOT NULL,
-//    endDate DATETIME NOT NULL,
-//    shiftPlanName VARCHAR(20),
-
-
     private $shiftPlanId;
     private $podId;
     private $startDate;

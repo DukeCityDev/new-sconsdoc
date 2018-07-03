@@ -58,6 +58,8 @@ abstract class SchedulerTest extends TestCase {
         $dataset->addTable("scon");
         $dataset->addTable("pod");
         $dataset->addTable("shiftPlan");
+        $dataset->addTable("shift");
+
         return($dataset);
     }
     /**

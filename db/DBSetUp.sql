@@ -43,7 +43,7 @@ CREATE TABLE shift(
   endDate DATETIME NOT NULL,
   available BOOLEAN,
 
-  INDEX(sconId),
+  INDEX(sconNetId),
   INDEX(podId),
   INDEX(shiftPlanId),
 

@@ -4,6 +4,8 @@
             <file>SconTest.php</file>
             <file>PodTest.php</file>
             <file>ShiftPlanTest.php</file>
+            <file>ShiftTest.php</file>
+
         </testsuite>
     </testsuites>
     <filter>

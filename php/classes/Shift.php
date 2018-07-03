@@ -10,27 +10,6 @@ namespace Unm\Scheduler;
 require_once(dirname(__DIR__) . "/autoload.php");
 require_once(dirname(__DIR__) . "/util/Util.php");
 
-//CREATE TABLE shift(
-//    shiftId INT UNSIGNED AUTO_INCREMENT,
-//  sconNetId VARCHAR UNSIGNED,
-//  podId INT UNSIGNED NOT NULL,
-//  shiftPlanId INT UNSIGNED,
-//  startDate DATETIME NOT NULL,
-//  endDate DATETIME NOT NULL,
-//  available BOOLEAN,
-//
-//  INDEX(sconId),
-//  INDEX(podId),
-//  INDEX(shiftPlanId),
-//
-//  PRIMARY KEY(shiftId),
-//  FOREIGN KEY (sconId) REFERENCES scon(sconId),
-//  FOREIGN KEY (podId) REFERENCES pod(podId),
-//  FOREIGN KEY (shiftPlanId) REFERENCES shiftPlan(shiftPlanId)
-//
-//)CHARACTER SET utf8 COLLATE utf8_unicode_ci;
-
-
 
 /**
  * Class Shift
@@ -46,8 +25,24 @@ class Shift
     private $endDate;
     private $available;
 
-    public function __construct(?int $shiftId, ?string $sconNetId, int $podId, int $shiftPlanId, \DateTime $startDate, \DateTime $endDate, boolean $available){
-
+    public function __construct(?int $shiftId, ?string $sconNetId, int $podId, int $shiftPlanId, \DateTime $startDate, \DateTime $endDate, bool $available){
+        try{
+            $this->setShiftId($shiftId);
+            $this->setSconNetId($sconNetId);
+            $this->setPodId($podId);
+            $this->setShiftPlanId($shiftPlanId);
+            $this->setStartDate($startDate);
+            $this->setEndDate($endDate);
+            $this->setAvailable($available);
+        } catch(\InvalidArgumentException $invalidArgument) {
+            throw(new \InvalidArgumentException($invalidArgument->getMessage(), 0, $invalidArgument));
+        } catch(\RangeException $range) {
+            throw(new \RangeException($range->getMessage(), 0, $range));
+        } catch(\TypeError $typeError) {
+            throw(new \TypeError($typeError->getMessage(), 0, $typeError));
+        } catch(\Exception $exception) {
+            throw(new \Exception($exception->getMessage(), 0, $exception));
+        }
     }
 
     public function setShiftId(?int $shiftId):void{
@@ -155,7 +150,7 @@ class Shift
     /**
      * @param mixed $available
      */
-    public function setAvailable(boolean $available)
+    public function setAvailable(bool $available)
     {
         if(is_null($this->sconNetId && !$available)){
             throw new \InvalidArgumentException("Shift cannot be unavailable if it has no assigned Scon");
@@ -166,7 +161,7 @@ class Shift
     /**
      * @return mixed
      */
-    public function getAvailable():boolean
+    public function getAvailable():bool
     {
         return $this->available;
     }
@@ -210,6 +205,35 @@ class Shift
         $statement = $pdo->prepare($query);
         $parameters = ["shiftId"=>$this->shiftId];
         $statement->execute($parameters);
+    }
+
+    public static function getShiftById(\PDO $pdo, $shiftId){
+        $query = "SELECT shiftId, sconNetId, podId, shiftPlanId, startDate, endDate, available FROM shift WHERE shiftId = :shiftId";
+        $statement = $pdo->prepare($query);
+        $parameter = ["shiftId"=> $shiftId];
+        $statement->execute($parameter);
+
+        try{
+            $shift = null;
+            $statement->setFetchMode(\PDO::FETCH_ASSOC);
+            $row = $statement->fetch();
+            if($row !== false){
+                $newStartDate = new \DateTime($row["startDate"]);
+                $newEndDate = new \DateTime($row["endDate"]);
+                if(!$newStartDate){
+                    $newStartDate = new \DateTime();
+                }
+                if(!$newEndDate){
+                    $newEndDate = new \DateTime();
+                }
+                $shift = new Shift($row["shiftId"],$row["sconNetId"],$row["podId"],$row["shiftPlanId"],$newStartDate,$newEndDate,$row["available"]);
+
+            }
+        }catch(\Exception $e){
+            throw(new \PDOException(new \PDOException($e->getMessage(),0,$e)));
+        }
+
+        return ($shift);
     }
 
     public static function getShiftByShiftPlanId(\PDO $pdo, int $shiftPlanId){
